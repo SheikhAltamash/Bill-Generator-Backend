@@ -14,6 +14,9 @@ app.use(express.json()); // Middleware to parse JSON bodies
 async function main() {
   await mongoose.connect(process.env.MONGOURL);
 }
+// async function main() {
+//   await mongoose.connect("mongodb://localhost:27017/billGenerator");
+// }
 main().then((res) => {
   console.log("Connected to MongoDB");
 });
@@ -30,7 +33,7 @@ app.post("/get", async (req, res) => {
   } else {
     let newBill = new BillModel(formData);
     await newBill.save();
-    // let bill = await BillModel(formData);
+ 
     console.log("new bill uploaded to server");
   }
 });
@@ -48,9 +51,13 @@ app.post("/invoiceCheck", async (req, res) => {
 });
 app.get("/AllBills", async (req, res) => {
   let Data = await BillModel.find().sort({ date: -1 });
-  console.log(JSON.stringify(Data.services));
-  Data.forEach((bill) => {
-    console.log(`Services: ${JSON.stringify(bill.services, null, 2)}`);
-  });
-  res.send(Data);
+res.send(Data);
+});
+app.get("/deleteAllData", async (req, res) => {
+  try {
+    await BillModel.deleteMany();
+    res.status(200).send({ message: "All data deleted successfully" });
+  } catch (error) {
+    res.status(500).send({ error: "An error occurred while deleting data" });
+  }
 });
